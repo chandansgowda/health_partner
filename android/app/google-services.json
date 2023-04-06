@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "878335432516",
+    "project_id": "health-partner-b9b5e",
+    "storage_bucket": "health-partner-b9b5e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878335432516:android:8f07cbcc3a4ebff8482911",
+        "android_client_info": {
+          "package_name": "com.codelikesus.health_partner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878335432516-n063eoctt6868hsras0ls06d0atph7p6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnSqP0gRRx0jB9kvwT1h2uXjQD2F5B75Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878335432516-n063eoctt6868hsras0ls06d0atph7p6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
