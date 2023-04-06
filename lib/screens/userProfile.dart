@@ -2,8 +2,11 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:health_partner/screens/authentication_screen.dart';
+import 'package:health_partner/screens/contactScreen.dart';
 
 class UserProfile extends StatefulWidget {
 
@@ -228,7 +231,9 @@ class _UserProfileState extends State<UserProfile> {
                             child: SizedBox(
                               height: 30,
                               child: TextButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Get.to(()=> ContactScreen());
+                                },
                                 child: Text('New Chat'),
                               ),
                             ),

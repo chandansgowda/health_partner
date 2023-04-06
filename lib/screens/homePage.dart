@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/painting.dart';
@@ -31,7 +32,6 @@ class _HomePageState extends State<HomePage> {
   Future<void> _getUser() async {
     user = _auth.currentUser!;
   }
-
 
   @override
   void initState() {
@@ -67,9 +67,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
-      floatingActionButton: FloatingActionButton(onPressed: (){
-        Get.to(()=> DoctorScreen());
-      },),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: <Widget>[Container()],
@@ -81,32 +78,74 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               StreamBuilder(
-                stream: FirebaseFirestore.instance.collection('users').doc(user.email!.toString()).collection('appointments').snapshots(),
-                builder: (context, userSnapshot) {
-                  if (userSnapshot.hasData){
-                    if (userSnapshot.data!.docs.length==0){
-                      return Center(child: Text("No Appointments", style: GoogleFonts.poppins(color: Colors.blue),),);
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(user.email!.toString())
+                      .collection('appointments')
+                      .snapshots(),
+                  builder: (context, userSnapshot) {
+                    if (userSnapshot.hasData) {
+                      if (userSnapshot.data!.docs.length == 0) {
+                        return Center(
+                          child: Text(
+                            "No Appointments",
+                            style: GoogleFonts.poppins(color: Colors.blue),
+                          ),
+                        );
+                      }
+                      var docEmail =
+                          userSnapshot.data!.docs.first["doctorEmail"];
+                      return StreamBuilder(
+                          stream: FirebaseFirestore.instance
+                              .collection('doctors')
+                              .doc(docEmail)
+                              .snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List queue = snapshot.data!["appointmentsQueue"];
+                              int positionInQueue =
+                                  queue.indexOf(user.email.toString());
+                              int remainingTime = positionInQueue * 20;
+                              if (remainingTime == 0) {
+                                AwesomeNotifications().createNotification(
+                                    content: NotificationContent(
+                                        id: 10,
+                                        channelKey: 'appointment_reminder',
+                                        title: 'Appointment Alert',
+                                        body: 'You can now go in!',
+                                        actionType: ActionType.Default
+                                    )
+                                );
+                                return Text(
+                                  "You can now go in!",
+                                  style:
+                                      GoogleFonts.poppins(color: Colors.green),
+                                );
+                              }
+                              return Text(
+                                "Queue: " +
+                                    positionInQueue.toString() +
+                                    " (Est: " +
+                                    remainingTime.toString() +
+                                    " mins)",
+                                style: GoogleFonts.poppins(color: Colors.blue),
+                              );
+                            }
+                            return Center(
+                              child: Text(
+                                "Connecting...",
+                                style: GoogleFonts.poppins(color: Colors.blue),
+                              ),
+                            );
+                          });
                     }
-                   var docEmail = userSnapshot.data!.docs.first["doctorEmail"];
-                    return StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection('doctors').doc(docEmail).snapshots(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData){
-                        List queue = snapshot.data!["appointmentsQueue"];
-                        int positionInQueue = queue.indexOf(user.email.toString());
-                        int remainingTime = positionInQueue * 20;
-                        if (remainingTime==0){
-                          return Text("You can now go in!", style: GoogleFonts.poppins(color: Colors.green),);
-                        }
-                        return Text("Queue: " + positionInQueue.toString() + " (Est: " + remainingTime.toString() + " mins)", style: GoogleFonts.poppins(color: Colors.blue),);
-                      }
-                        return Center(child: Text("Connecting...", style: GoogleFonts.poppins(color: Colors.blue),),);
-                      }
+                    return Center(
+                      child: Text(
+                        "Connecting...",
+                        style: GoogleFonts.poppins(color: Colors.blue),
+                      ),
                     );
-                  }
-                  return Center(child: Text("Connecting...", style: GoogleFonts.poppins(color: Colors.blue),),);
-                }
-              ),
+                  }),
               SizedBox(
                 width: 55,
               ),
@@ -305,7 +344,6 @@ class _HomePageState extends State<HomePage> {
                                         fontWeight: FontWeight.w600),
                                   ),
                                 ),
-
                               ],
                             ),
                           ),

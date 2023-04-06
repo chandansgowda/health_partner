@@ -49,6 +49,8 @@ dependencies:
   carousel_slider: ^4.2.1
   flutter_tabler_icons: ^1.1.2
   url_launcher: ^6.1.10
+  awesome_notifications: ^0.7.4+1
+  flutter_tawk: ^0.1.0
 
 dev_dependencies:
   flutter_test:
