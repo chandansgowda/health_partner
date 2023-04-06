@@ -201,7 +201,7 @@ class _DoctorProfileState extends State<DoctorProfile> {
                                 width: 20,
                               ),
                               Text(
-                                'Queue Length:   ' + document['qLength'].toString(),
+                                'Queue Length:   ' + document['appointmentsQueue'].length.toString(),
                                 style: GoogleFonts.lato(
                                   fontSize: 16,
                                 ),

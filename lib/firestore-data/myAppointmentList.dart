@@ -1,3 +1,5 @@
+
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -18,13 +20,32 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
     user = _auth.currentUser!;
   }
 
-  Future<void> deleteAppointment(String docID) {
-    return FirebaseFirestore.instance
+  Future<void> deleteAppointment(String docID, String docEmail) async{
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(user.email.toString())
         .collection('appointments')
         .doc(docID)
         .delete();
+
+    await FirebaseFirestore.instance
+        .collection('doctors')
+        .doc(docEmail)
+        .collection('appointments')
+        .doc(user.email.toString())
+        .delete();
+
+    var doctorDoc = await FirebaseFirestore.instance
+        .collection('doctors')
+        .doc(docEmail).get();
+    List<dynamic> appointmentsQueue = doctorDoc["appointmentsQueue"];
+    appointmentsQueue.remove(user!.email.toString());
+    print(appointmentsQueue);
+    await FirebaseFirestore.instance
+        .collection('doctors')
+        .doc(docEmail).update({
+      "appointmentsQueue": appointmentsQueue
+    });
   }
 
   String _dateFormatter(String _timestamp) {
@@ -39,7 +60,7 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
     return formattedTime;
   }
 
-  showAlertDialog(BuildContext context) {
+  showAlertDialog(BuildContext context, String docEmail) {
     // set up the buttons
     Widget cancelButton = TextButton(
       child: Text("No"),
@@ -50,7 +71,7 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
     Widget continueButton = TextButton(
       child: Text("Yes"),
       onPressed: () {
-        deleteAppointment(_documentID);
+        deleteAppointment(_documentID, docEmail);
         Navigator.of(context).pop();
       },
     );
@@ -107,7 +128,6 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
             .collection('users')
             .doc(user.email.toString())
             .collection('appointments')
-            .orderBy('date')
             .snapshots(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (!snapshot.hasData) {
@@ -132,9 +152,8 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
                   itemCount: snapshot.data!.size,
                   itemBuilder: (context, index) {
                     DocumentSnapshot document = snapshot.data!.docs[index];
-                    print(_compareDate(document['date'].toDate().toString()));
-                    if (_checkDiff(document['date'].toDate())) {
-                      deleteAppointment(document.id);
+                    if (_checkDiff(DateTime.now())) {
+                      deleteAppointment(document.id, document['doctorEmail']);
                     }
                     return Card(
                       elevation: 2,
@@ -156,7 +175,7 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
                               ),
                               Text(
                                 _compareDate(
-                                        document['date'].toDate().toString())
+                                        DateTime.now().toString())
                                     ? "TODAY"
                                     : "",
                                 style: GoogleFonts.lato(
@@ -200,11 +219,8 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
                                       ),
                                       Text(
                                         "Time: " +
-                                            _timeFormatter(
-                                              document['date']
-                                                  .toDate()
-                                                  .toString(),
-                                            ),
+                                            DateTime.now().hour.toString() + ":" + DateTime.now().minute.toString(),
+
                                         style: GoogleFonts.lato(
                                           fontSize: 16,
                                         ),
@@ -220,7 +236,7 @@ class _MyAppointmentListState extends State<MyAppointmentList> {
                                     onPressed: () {
                                       print(">>>>>>>>>" + document.id);
                                       _documentID = document.id;
-                                      showAlertDialog(context);
+                                      showAlertDialog(context, document['doctorEmail']);
                                     },
                                   ),
                                 ],

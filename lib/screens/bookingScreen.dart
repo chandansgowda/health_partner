@@ -341,14 +341,16 @@ class _BookingScreenState extends State<BookingScreen> {
     var doctorDoc = await FirebaseFirestore.instance
         .collection('doctors')
         .doc(_doctorController.text).get();
-    int qLength = doctorDoc["qLength"] + 1;
-    FirebaseFirestore.instance
+    List<dynamic> appointmentsQueue = doctorDoc["appointmentsQueue"];
+    appointmentsQueue.add(user!.email.toString());
+    print(appointmentsQueue);
+    await FirebaseFirestore.instance
         .collection('doctors')
         .doc(_doctorController.text).update({
-      'qLength': qLength.toString()
+      "appointmentsQueue": appointmentsQueue
     });
 
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('users')
         .doc(user!.email)
         .collection('appointments')
