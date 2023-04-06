@@ -354,7 +354,7 @@ class _BookingScreenState extends State<BookingScreen> {
         .collection('users')
         .doc(user!.email)
         .collection('appointments')
-        .doc()
+        .doc(_doctorController.text)
         .set({
       'name': _nameController.text,
       'description': _descriptionController.text,

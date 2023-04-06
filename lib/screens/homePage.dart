@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/painting.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:health_partner/screens/doctorScreen.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -62,6 +67,9 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       key: _scaffoldKey,
+      floatingActionButton: FloatingActionButton(onPressed: (){
+        Get.to(()=> DoctorScreen());
+      },),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         actions: <Widget>[Container()],
@@ -70,19 +78,34 @@ class _HomePageState extends State<HomePage> {
         title: Container(
           padding: EdgeInsets.only(top: 5),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                //width: MediaQuery.of(context).size.width/1.3,
-                alignment: Alignment.center,
-                child: Text(
-                  "Notification Will Come Here",
-                  style: GoogleFonts.lato(
-                    color: Colors.black54,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
+              StreamBuilder(
+                stream: FirebaseFirestore.instance.collection('users').doc(user.email!.toString()).collection('appointments').snapshots(),
+                builder: (context, userSnapshot) {
+                  if (userSnapshot.hasData){
+                    if (userSnapshot.data!.docs.length==0){
+                      return Center(child: Text("No Appointments", style: GoogleFonts.poppins(color: Colors.blue),),);
+                    }
+                   var docEmail = userSnapshot.data!.docs.first["doctorEmail"];
+                    return StreamBuilder(
+                      stream: FirebaseFirestore.instance.collection('doctors').doc(docEmail).snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData){
+                        List queue = snapshot.data!["appointmentsQueue"];
+                        int positionInQueue = queue.indexOf(user.email.toString());
+                        int remainingTime = positionInQueue * 20;
+                        if (remainingTime==0){
+                          return Text("You can now go in!", style: GoogleFonts.poppins(color: Colors.green),);
+                        }
+                        return Text("Queue: " + positionInQueue.toString() + " (Est: " + remainingTime.toString() + " mins)", style: GoogleFonts.poppins(color: Colors.blue),);
+                      }
+                        return Center(child: Text("Connecting...", style: GoogleFonts.poppins(color: Colors.blue),),);
+                      }
+                    );
+                  }
+                  return Center(child: Text("Connecting...", style: GoogleFonts.poppins(color: Colors.blue),),);
+                }
               ),
               SizedBox(
                 width: 55,

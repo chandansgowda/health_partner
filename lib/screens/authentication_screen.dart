@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:health_partner/mainPage.dart';
+import 'package:health_partner/screens/auth_gate.dart';
+import 'package:health_partner/screens/doctorScreen.dart';
 
 
 class AuthenticationScreen extends StatelessWidget {
@@ -31,7 +34,16 @@ class AuthenticationScreen extends StatelessWidget {
       },
       actions: [
         AuthStateChangeAction<SignedIn>((context, signedIn) async {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => MainPage()));
+          FirebaseFirestore.instance.collection('users').doc(FirebaseAuth.instance.currentUser!.email).get().then((value){
+            if (value["type"]=="Patient"){
+              print(value["type"]);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => MainPage()));
+            }
+            else{
+              Navigator.push(context, MaterialPageRoute(builder: (_) => DoctorScreen()));
+            }
+          });
+
         }),
       ],
     );

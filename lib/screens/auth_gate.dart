@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:health_partner/mainPage.dart';
 import 'package:health_partner/screens/authentication_screen.dart';
+import 'package:health_partner/screens/doctorScreen.dart';
 
 
 
@@ -15,11 +17,7 @@ class AuthGate extends StatelessWidget {
       initialData: FirebaseAuth.instance.currentUser,
       builder: (context, snapshot) {
         // User is not signed in
-        if (!snapshot.hasData) {
-          return AuthenticationScreen();
-        }
-        // Go to home screen if authenticated
-        return MainPage();
+        return AuthenticationScreen();
       },
     );
   }
